@@ -1,42 +1,28 @@
-# deploy static
-$whisper_dirs = [ '/data/', '/data/web_static/',
-                        '/data/web_static/releases/', '/data/web_static/shared/',
-                        '/data/web_static/releases/test/'
-                  ]
-
-package {'nginx':
-  ensure  => installed,
+# configure an nginx web server
+exec { 'apt-get-update':
+  command => '/usr/bin/env apt-get -y update',
 }
-
-file { $whisper_dirs:
-        ensure  => 'directory',
-        owner   => 'ubuntu',
-        group   => 'ubuntu',
-        recurse => 'remote',
-        mode    => '0777',
+-> exec {'nginx':
+  command => '/usr/bin/env apt-get -y install nginx',
 }
-file { '/data/web_static/current':
-  ensure => link,
-  target => '/data/web_static/releases/test/',
+-> exec {'test folder':
+  command => '/usr/bin/env mkdir -p /data/web_static/releases/test/',
 }
-file {'/data/web_static/releases/test/index.html':
-  ensure  => present,
-  content => 'Holberton School for the win!',
+-> exec {'shared folder':
+  command => '/usr/bin/env mkdir -p /data/web_static/shared/',
 }
-
-exec { 'chown -R ubuntu:ubuntu /data/':
-  path => '/usr/bin/:/usr/local/bin/:/bin/'
+-> exec {'index':
+  command => '/usr/bin/env echo "Welcome to AirBnB" > /data/web_static/releases/test/index.html',
 }
-
-file_line {'deploy static':
-  path  => '/etc/nginx/sites-available/default',
-  after => 'server_name _;',
-  line  => "\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}",
+-> exec {'ln -s':
+  command => '/usr/bin/env ln -sf /data/web_static/releases/test /data/web_static/current',
 }
-
-service {'nginx':
-  ensure  => running,
+-> exec {'nginx conf':
+  command => '/usr/bin/env sed -i "/listen 80 default_server/a location /hbnb_static/ { alias /data/web_static/current/;}" /etc/nginx/sites-available/default',
 }
-
-exec {'/etc/init.d/nginx restart':
+-> exec {'chown:':
+  command => '/usr/bin/env chown -R ubuntu:ubuntu /data',
+}
+-> exec {'service':
+  command => '/usr/bin/env service nginx restart',
 }

@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-# set up dummy html
+#A bash script that sets up your web servers for the deployment of web_static
 
-server="\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}"
-file="/etc/nginx/sites-available/default"
-sudo apt-get update -y
-sudo apt-get install nginx -y
-sudo mkdir -p "/data/web_static/releases/test/"
-sudo mkdir "/data/web_static/shared/"
-echo "Holberton" > "/data/web_static/releases/test/index.html"
-rm -f "/data/web_static/current"; ln -s "/data/web_static/releases/test/" "/data/web_static/current"
-sudo chown -hR ubuntu:ubuntu "/data/"
-sudo sed -i "29i\ $server" "$file"
-sudo service nginx restart
+apt-get update
+apt-get install -y nginx
+mkdir -p /data/web_static/releases/test
+mkdir -p /data/web_static/shared
+echo "Welcome to AirBnB" > /data/web_static/releases/test/index.html
+ln -sf /data/web_static/releases/test /data/web_static/current
+chown -R ubuntu:ubuntu /data/
+serve="\n\tlocation \/hbnb_static {\n\t\talias \/data\/web_static\/current;\n\t}"
+sed -i "s/^\tserver_name .*;$/&\n$serve/" /etc/nginx/sites-available/default
+service nginx restart

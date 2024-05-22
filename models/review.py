@@ -1,29 +1,27 @@
 #!/usr/bin/python3
-"""
-    contains review class to represent reviews
-"""
-from models.base_model import BaseModel, Base
-from models.place import Place
-from models.user import User
-from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.sql.schema import ForeignKey
-from os import environ
 
-storage_engine = environ.get("HBNB_TYPE_STORAGE")
+"""
+A module that defines ORM class for Review table
+"""
+from os import getenv
+from sqlalchemy import Column, ForeignKey
+from sqlalchemy import String
+from models.base_model import Base, BaseModel
 
 
 class Review(BaseModel, Base):
     """
-        Review class
+    Defines attributes for Review table
     """
-    if (storage_engine == 'db'):
-        __tablename__ = "reviews"
-        place_id = Column(String(60), ForeignKey("places.id"))
-        user_id = Column(String(60), ForeignKey("users.id"))
+    __tablename__ = 'reviews'
+
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
         text = Column(String(1024), nullable=False)
-        place = relationship("Place", back_populates="reviews")
+        place_id = Column(
+            String(60), ForeignKey('places.id'), nullable=False)
+        user_id = Column(
+            String(60), ForeignKey('users.id'), nullable=False)
     else:
-        place_id = ""
-        user_id = ""
-        text = ""
+        text = ''
+        place_id = ''
+        user_id = ''

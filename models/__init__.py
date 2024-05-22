@@ -1,35 +1,20 @@
 #!/usr/bin/python3
+"""This module instantiates storage object
+@TODOS:
+    checks HBNB_TYPE_STORAGE environmental variable to determine storage type
 """
-    instantiates the storage system, and defines
-    dummy classes for further use
-"""
-from models.engine.file_storage import FileStorage
-from models.engine.db_storage import DBStorage
+from os import getenv
+from .user import User
+from .city import City
+from .place import Place
+from .state import State
+from .review import Review
+from .amenity import Amenity
 
-from models.base_model import BaseModel
-from models.city import City
-from models.review import Review
-from models.state import State
-from models.user import User
-from models.place import Place
-from models.amenity import Amenity
-
-from os import environ
-
-dummy_classes = {"BaseModel": BaseModel, "User": User,
-                 "Review": Review, "City": City,
-                 "State": State, "Place": Place,
-                 "Amenity": Amenity}
-
-dummy_tables = {"states": State, "cities": City,
-                "users": User, "places": Place,
-                "reviews": Review, "amenities": Amenity}
-
-storage_engine = environ.get("HBNB_TYPE_STORAGE")
-
-if (storage_engine == "db"):
+if getenv('HBNB_TYPE_STORAGE') == 'db':
+    from models.engine.db_storage import DBStorage
     storage = DBStorage()
-    storage.reload()
 else:
+    from models.engine.file_storage import FileStorage
     storage = FileStorage()
-    storage.reload()
+storage.reload()
